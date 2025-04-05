@@ -111,3 +111,31 @@ nav a:hover {
 .access-content {
     margin-top: 20px;
 }
+
+.login-form, #profesor-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 300px;
+}
+
+.login-form input, #profesor-dashboard input, #profesor-dashboard select {
+    padding: 8px;
+    font-size: 14px;
+}
+
+.login-form button, #profesor-dashboard button {
+    background-color: #34495e;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.login-form button:hover, #profesor-dashboard button:hover {
+    background-color: #2c3e50;
+}
+
+#student-data, #grade-status {
+    margin: 10px 0;
+}

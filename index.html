@@ -9,7 +9,7 @@
 <body>
     <header>
         <h1>Colegio Julio Benavides Sanguinetti</h1>
-        <img src="escudo_colegio.jpg"  class="logo">
+        <img src="logo-placeholder.png" alt="Logotipo del Colegio Julio Benavides Sanguinetti" class="logo">
         <p>Teléfono: (123) 456-7890 | Correo: info@juliobenavides.edu</p>
         <p>
             <a href="https://facebook.com/juliobenavides" class="social-link">Facebook</a> | 
@@ -78,11 +78,38 @@
             </div>
             <div id="acceso-profesores-content" class="access-content" style="display: none;">
                 <h3>Portal de Profesores</h3>
-                <p>Gestiona tus clases y registra información.</p>
+                <div id="profesor-login" class="login-form">
+                    <input type="text" id="profesor-username" placeholder="Usuario">
+                    <input type="password" id="profesor-password" placeholder="Contraseña">
+                    <button id="profesor-login-btn">Iniciar Sesión</button>
+                    <button id="show-register-btn">Registrar Nuevo Profesor</button>
+                </div>
+                <div id="profesor-register" class="login-form" style="display: none;">
+                    <input type="text" id="register-username" placeholder="Nuevo Usuario">
+                    <input type="password" id="register-password" placeholder="Nueva Contraseña">
+                    <button id="profesor-register-btn">Registrar</button>
+                    <button id="back-to-login-btn">Volver al Inicio de Sesión</button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <script>
+       const firebaseConfig = {
+            apiKey: "AIzaSyAzzPxozq5njEkOXIH-1JAVYLrjyY4KZsA",
+            authDomain: "juliobenavides-sanguinetti.firebaseapp.com",
+            databaseURL: "https://TU_PROJECT_ID.firebaseio.com", // Reemplaza con tu URL
+            projectId: "juliobenavides-sanguinetti",
+            storageBucket: "juliobenavides-sanguinetti.firebasestorage.app",
+            messagingSenderId: "868115613114",
+            appId: "1:868115613114:web:90a9a69886ac14cb3b4983"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
     <script src="script.js"></script>
 </body>
 </html>

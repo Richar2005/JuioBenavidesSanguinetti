@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingreso de Notas - Profesores</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .dashboard {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .dashboard h2 {
+            color: #2c3e50;
+        }
+        .dashboard input, .dashboard select, .dashboard button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 8px;
+            font-size: 14px;
+        }
+        .dashboard button {
+            background-color: #34495e;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .dashboard button:hover {
+            background-color: #2c3e50;
+        }
+        #student-data, #grade-review {
+            margin: 10px 0;
+        }
+        #grade-review {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h2>Ingreso de Notas</h2>
+        <button id="logout-btn">Cerrar Sesión</button>
+        <input type="text" id="student-id" placeholder="ID del Estudiante">
+        <button id="load-student-btn">Cargar Datos</button>
+        <div id="student-data"></div>
+        <select id="course-select">
+            <option value="">Selecciona un curso</option>
+            <option value="matematicas">Matemáticas</option>
+            <option value="ciencias">Ciencias</option>
+            <option value="historia">Historia</option>
+        </select>
+        <input type="number" id="grade-input" placeholder="Nota (0-100)" min="0" max="100">
+        <button id="review-grade-btn">Revisar</button>
+        <div id="grade-review">
+            <p>Revisión: <span id="review-text"></span></p>
+            <button id="save-grade-btn">Guardar Cambios</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <script>
+       const firebaseConfig = {
+            apiKey: "AIzaSyAzzPxozq5njEkOXIH-1JAVYLrjyY4KZsA",
+            authDomain: "juliobenavides-sanguinetti.firebaseapp.com",
+            databaseURL: "https://TU_PROJECT_ID.firebaseio.com", // Reemplaza con tu URL
+            projectId: "juliobenavides-sanguinetti",
+            storageBucket: "juliobenavides-sanguinetti.firebasestorage.app",
+            messagingSenderId: "868115613114",
+            appId: "1:868115613114:web:90a9a69886ac14cb3b4983"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // Verificar autenticación
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                window.location.href = 'index.html'; // Redirige si no está autenticado
+            }
+        });
+
+        // Cerrar sesión
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            });
+        });
+
+        // Cargar datos del estudiante
+        document.getElementById('load-student-btn').addEventListener('click', function() {
+            const studentId = document.getElementById('student-id').value;
+            if (studentId) {
+                database.ref('students/' + studentId).once('value')
+                    .then(snapshot => {
+                        const data = snapshot.val();
+                        document.getElementById('student-data').innerHTML = data ? 
+                            `Estudiante: ${studentId} - Nombre: ${data.name || 'Ejemplo'}` : 
+                            'Estudiante no encontrado';
+                    })
+                    .catch(error => alert('Error al cargar datos: ' + error.message));
+            } else {
+                alert('Ingrese un ID de estudiante válido.');
+            }
+        });
+
+        // Revisar nota
+        document.getElementById('review-grade-btn').addEventListener('click', function() {
+            const studentId = document.getElementById('student-id').value;
+            const course = document.getElementById('course-select').value;
+            const grade = document.getElementById('grade-input').value;
+            if (studentId && course && grade) {
+                document.getElementById('review-text').innerText = `${studentId} - ${course}: ${grade}`;
+                document.getElementById('grade-review').style.display = 'block';
+            } else {
+                alert('Complete todos los campos antes de revisar.');
+            }
+        });
+
+        // Guardar cambios en Firebase
+        document.getElementById('save-grade-btn').addEventListener('click', function() {
+            const studentId = document.getElementById('student-id').value;
+            const course = document.getElementById('course-select').value;
+            const grade = document.getElementById('grade-input').value;
+            if (studentId && course && grade) {
+                const gradeData = { course, grade, timestamp: Date.now() };
+                database.ref('grades/' + studentId).push(gradeData)
+                    .then(() => {
+                        alert('Nota guardada con éxito.');
+                        document.getElementById('grade-review').style.display = 'none';
+                        document.getElementById('student-id').value = '';
+                        document.getElementById('course-select').value = '';
+                        document.getElementById('grade-input').value = '';
+                        document.getElementById('student-data').innerHTML = '';
+                    })
+                    .catch(error => alert('Error al guardar: ' + error.message));
+            }
+        });
+    </script>
+</body>
+</html>
