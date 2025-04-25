@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Estudiantil - Colegio Julio Benavides Sanguinetti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="student_styles.css">
+</head>
+<body>
+    <!-- Panel de Usuario -->
+    <div id="dashboard-section" class="container">
+        <h1 id="welcome-message"></h1>
+        <p id="last-login"></p>
+        <p id="notification" class="notification hidden"></p>
+        <p id="study-tip" class="tip"></p>
+        <select id="theme-select">
+            <option value="light-theme">Claro</option>
+            <option value="dark-theme">Oscuro</option>
+        </select>
+        <button id="contact-btn" class="btn secondary">Contactar al Colegio</button>
+        <button id="logout-btn" class="btn secondary">Cerrar Sesión</button>
+        <nav>
+            <button id="grades-btn" class="btn">Calificaciones</button>
+        </nav>
+    </div>
+
+    <!-- Sección Calificaciones -->
+    <div id="grades-section" class="container hidden">
+        <h1>Calificaciones</h1>
+        <div id="grades-content">
+            <h2>Cursos Actuales</h2>
+            <div class="progress-circle" id="progress-circle">
+                <svg>
+                    <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
+                    <circle class="circle-fg" id="progress-fg" cx="50" cy="50" r="45"></circle>
+                </svg>
+                <span id="progress-text"></span>
+            </div>
+            <table id="grades-table">
+                <thead>
+                    <tr>
+                        <th>Curso</th>
+                        <th>Nota</th>
+                        <th>Estado</th>
+                        <th>Mensaje del Profesor</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <h2>Promedio General: <span id="general-average"></span></h2>
+            <button id="download-pdf" class="btn">Descargar Boletín (PDF)</button>
+        </div>
+        <button id="back-to-dashboard" class="btn secondary">Volver</button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzzPxozq5njEkOXIH-1JAVYLrjyY4KZsA",
+            authDomain: "juliobenavides-sanguinetti.firebaseapp.com",
+            projectId: "juliobenavides-sanguinetti",
+            storageBucket: "juliobenavides-sanguinetti.firebasestorage.app",
+            messagingSenderId: "868115613114",
+            appId: "1:868115613114:web:90a9a69886ac14cb3b4983",
+            measurementId: "G-8JR1MN1HGB"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Consejos académicos
+        const studyTips = [
+            "Organiza tu tiempo con un horario de estudio diario.",
+            "Toma notas claras durante las clases para repasar después.",
+            "Pregunta a tus profesores si tienes dudas, ¡es la mejor forma de aprender!",
+            "Descansa bien antes de un examen para estar más concentrado.",
+            "Practica ejercicios similares a los de clase para reforzar lo aprendido."
+        ];
+
+        // Elementos del DOM
+        const dashboardSection = document.getElementById("dashboard-section");
+        const gradesSection = document.getElementById("grades-section");
+        const welcomeMessage = document.getElementById("welcome-message");
+        const lastLogin = document.getElementById("last-login");
+        const notification = document.getElementById("notification");
+        const studyTip = document.getElementById("study-tip");
+        const themeSelect = document.getElementById("theme-select");
+        const contactBtn = document.getElementById("contact-btn");
+        const logoutBtn = document.getElementById("logout-btn");
+        const gradesBtn = document.getElementById("grades-btn");
+        const gradesTableBody = document.querySelector("#grades-table tbody");
+        const generalAverageSpan = document.getElementById("general-average");
+        const downloadPdfBtn = document.getElementById("download-pdf");
+        const backToDashboardBtn = document.getElementById("back-to-dashboard");
+        const progressFg = document.getElementById("progress-fg");
+        const progressText = document.getElementById("progress-text");
+
+        let currentStudent = null;
+        let studentDni = null;
+        let allGrades = [];
+
+        // Verificar autenticación
+        window.addEventListener('load', async () => {
+            studentDni = localStorage.getItem('studentDNI');
+            if (!studentDni) {
+                window.location.href = 'login_student.html';
+                return;
+            }
+
+            try {
+                const studentDoc = await db.collection('students').doc(studentDni).get();
+                if (!studentDoc.exists) {
+                    console.error('Estudiante no encontrado en Firestore');
+                    localStorage.removeItem('studentDNI');
+                    window.location.href = 'login_student.html';
+                    return;
+                }
+
+                const student = studentDoc.data();
+                const allowedStatuses = ["DEFINITIVA", "EN PROCESO"];
+                if (!allowedStatuses.includes(student.estado)) {
+                    console.error('Estado del estudiante no permitido:', student.estado);
+                    localStorage.removeItem('studentDNI');
+                    window.location.href = 'login_student.html';
+                    return;
+                }
+
+                currentStudent = student;
+                welcomeMessage.textContent = `Bienvenido, ${currentStudent.nombre} ${currentStudent.apellidos}, ${currentStudent.grado}, Sección ${currentStudent.seccion}`;
+                loadLastLogin();
+                loadGrades();
+                checkNotifications();
+                showStudyTip();
+            } catch (error) {
+                console.error("Error al cargar datos del estudiante:", error);
+                localStorage.removeItem('studentDNI');
+                window.location.href = 'login_student.html';
+            }
+        });
+
+        // Cargar último acceso
+        async function loadLastLogin() {
+            const accessLog = await db.collection('accessLogs')
+                .where('userId', '==', studentDni)
+                .orderBy('fecha', 'desc')
+                .limit(2)
+                .get();
+            if (accessLog.docs.length > 1) {
+                lastLogin.textContent = `Último acceso: ${accessLog.docs[1].data().fecha.toDate().toLocaleString('es-PE')}`;
+            } else {
+                lastLogin.textContent = 'Primer acceso';
+            }
+
+            // Registrar acceso actual
+            await db.collection('accessLogs').add({
+                userId: studentDni,
+                fecha: firebase.firestore.Timestamp.fromDate(new Date()),
+                dispositivo: navigator.userAgent
+            });
+        }
+
+        // Cargar notas
+        async function loadGrades() {
+            allGrades = [];
+            const gradesSnapshot = await db.collection('grades')
+                .where('idEstudiante', '==', studentDni)
+                .get();
+            gradesSnapshot.forEach(doc => {
+                allGrades.push({ id: doc.id, ...doc.data() });
+            });
+            displayGrades();
+        }
+
+        // Mostrar notas
+        function displayGrades() {
+            gradesTableBody.innerHTML = '';
+            const gradesByCourse = {};
+            allGrades.forEach(grade => {
+                if (!gradesByCourse[grade.curso]) {
+                    gradesByCourse[grade.curso] = [];
+                }
+                gradesByCourse[grade.curso].push(grade);
+            });
+
+            let totalAverage = 0;
+            let courseCount = 0;
+            Object.keys(gradesByCourse).forEach(course => {
+                const courseGrades = gradesByCourse[course];
+                const courseAverage = courseGrades.reduce((sum, g) => sum + g.nota, 0) / courseGrades.length;
+                let status = '';
+                let statusClass = '';
+                if (courseAverage >= 11) {
+                    status = 'Aprobado';
+                    statusClass = 'aprobado';
+                } else if (courseAverage >= 9) {
+                    status = 'En riesgo';
+                    statusClass = 'en-riesgo';
+                } else {
+                    status = 'Desaprobado';
+                    statusClass = 'desaprobado';
+                }
+
+                const message = courseGrades[0].comentario || '-';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${course}</td>
+                    <td>${courseAverage.toFixed(1)}</td>
+                    <td class="${statusClass}">${status}</td>
+                    <td>${message}</td>
+                `;
+                gradesTableBody.appendChild(row);
+
+                totalAverage += courseAverage;
+                courseCount++;
+            });
+
+            const generalAverage = courseCount > 0 ? (totalAverage / courseCount).toFixed(1) : 0;
+            generalAverageSpan.textContent = `${generalAverage} (${generalAverage >= 11 ? 'Aprobado' : generalAverage >= 9 ? 'En riesgo' : 'Desaprobado'})`;
+            updateProgressCircle(generalAverage);
+        }
+
+        // Actualizar círculo de progreso
+        function updateProgressCircle(average) {
+            const percentage = (average / 20) * 100;
+            const circumference = 2 * Math.PI * 45;
+            const offset = circumference - (percentage / 100) * circumference;
+            progressFg.style.strokeDasharray = `${circumference} ${circumference}`;
+            progressFg.style.strokeDashoffset = offset;
+            progressText.textContent = `${average}/20`;
+        }
+
+        // Mostrar consejo académico
+        function showStudyTip() {
+            const randomTip = studyTips[Math.floor(Math.random() * studyTips.length)];
+            studyTip.textContent = `Consejo: ${randomTip}`;
+        }
+
+        // Mostrar notificación
+        async function checkNotifications() {
+            const lastAccess = await db.collection('lastAccess')
+                .doc(studentDni)
+                .get();
+            const lastAccessTime = lastAccess.exists ? lastAccess.data().timestamp.toDate() : new Date(0);
+
+            const newGrades = allGrades.filter(grade => grade.fecha.toDate() > lastAccessTime);
+            if (newGrades.length > 0) {
+                notification.textContent = `Tienes ${newGrades.length} nueva(s) calificación(es): ${newGrades.map(g => `${g.curso}: ${g.nota}`).join(', ')}`;
+                notification.classList.remove('hidden');
+            }
+
+            await db.collection('lastAccess').doc(studentDni).set({
+                timestamp: firebase.firestore.Timestamp.fromDate(new Date())
+            });
+        }
+
+        // Cambiar tema
+        themeSelect.addEventListener("change", () => {
+            document.body.className = themeSelect.value;
+            localStorage.setItem('theme', themeSelect.value);
+        });
+
+        // Cargar tema guardado
+        const savedTheme = localStorage.getItem('theme') || 'light-theme';
+        document.body.className = savedTheme;
+        themeSelect.value = savedTheme;
+
+        // Contactar al colegio
+        contactBtn.addEventListener("click", () => {
+            alert("Envía tus dudas al correo: soporte@colegiojbs.edu.pe");
+        });
+
+        // Cerrar sesión
+        logoutBtn.addEventListener("click", () => {
+            localStorage.removeItem('studentDNI');
+            window.location.href = 'login_student.html';
+        });
+
+        // Mostrar calificaciones
+        gradesBtn.addEventListener("click", () => {
+            dashboardSection.classList.add("hidden");
+            gradesSection.classList.remove("hidden");
+        });
+
+        // Volver al dashboard
+        backToDashboardBtn.addEventListener("click", () => {
+            gradesSection.classList.add("hidden");
+            dashboardSection.classList.remove("hidden");
+        });
+
+        // Descargar PDF
+        downloadPdfBtn.addEventListener("click", () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text(`Boletín de Notas - ${currentStudent.nombre} ${currentStudent.apellidos}`, 20, 20);
+            doc.text(`Grado: ${currentStudent.grado}, Sección: ${currentStudent.seccion}`, 20, 30);
+
+            let y = 40;
+            const gradesByCourse = {};
+            allGrades.forEach(grade => {
+                if (!gradesByCourse[grade.curso]) {
+                    gradesByCourse[grade.curso] = [];
+                }
+                gradesByCourse[grade.curso].push(grade);
+            });
+
+            let totalAverage = 0;
+            let courseCount = 0;
+            Object.keys(gradesByCourse).forEach(course => {
+                const courseGrades = gradesByCourse[course];
+                const courseAverage = courseGrades.reduce((sum, g) => sum + g.nota, 0) / courseGrades.length;
+                const status = courseAverage >= 11 ? 'Aprobado' : courseAverage >= 9 ? 'En riesgo' : 'Desaprobado';
+                const message = courseGrades[0].comentario || '-';
+                doc.text(`${course}: ${courseAverage.toFixed(1)} (${status}) - ${message}`, 20, y);
+                y += 10;
+                totalAverage += courseAverage;
+                courseCount++;
+            });
+
+            const generalAverage = courseCount > 0 ? (totalAverage / courseCount).toFixed(1) : 0;
+            doc.text(`Promedio General: ${generalAverage}`, 20, y);
+            doc.save(`boletin_${studentDni}.pdf`);
+        });
+
+        // Cierre automático tras 30 minutos de inactividad
+        let inactivityTimeout;
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimeout);
+            inactivityTimeout = setTimeout(() => {
+                alert("Sesión cerrada por inactividad.");
+                localStorage.removeItem('studentDNI');
+                window.location.href = 'login_student.html';
+            }, 30 * 60 * 1000); // 30 minutos
+        }
+
+        document.addEventListener("mousemove", resetInactivityTimer);
+        document.addEventListener("keydown", resetInactivityTimer);
+        resetInactivityTimer();
+    </script>
+</body>
+</html>

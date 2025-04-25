@@ -1,0 +1,76 @@
+/*css de login profesores*/
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--background-color, #f4f4f4);
+}
+
+.login-box {
+    background: var(--white, #fff);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.login-box h1 {
+    font-family: 'Oswald', sans-serif;
+    color: var(--primary-color, #0056b3);
+    margin-bottom: 1.5rem;
+}
+
+.input-group {
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-color, #333);
+    margin-bottom: 0.5rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color, #ccc);
+    border-radius: 5px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+}
+
+.error-message {
+    color: var(--error-color, #d32f2f);
+    margin-bottom: 1rem;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+}
+
+.btn {
+    background-color: var(--primary-color, #0056b3);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+    width: 100%;
+    font-family: 'Poppins', sans-serif;
+}
+
+.btn:hover {
+    background-color: var(--secondary-color, #66b0ff);
+}
+
+@media (max-width: 768px) {
+    .login-box {
+        padding: 1.5rem;
+        max-width: 90%;
+    }
+}

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colegio - Página Web</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Primer encabezado (contacto y redes sociales) -->
+    <div class="top-header">
+        <div class="contact-info">
+            <a href="tel:+1234567890">📞 (123) 456-7890</a>
+            <a href="https://wa.me/1234567890">📱 WhatsApp</a>
+            <a href="https://facebook.com/juliobenavides">Facebook</a>
+            <a href="https://instagram.com/juliobenavides">Instagram</a>
+        </div>
+        <div class="social-links">
+            <a
+                href="/cdn-cgi/l/email-protection#58b7b6a7b6a8b7b6a7b618b7b6a7b6a8b7b6a7b676b7b6a7b6a8b7b6a7b676a7b6">[email&#160;protected]</a>
+        </div>
+    </div>
+
+    <!-- Segundo encabezado (logo y navegación) -->
+    <header>
+        <div class="header-logo">
+            <img src="escudo_colegio2.png" alt="Logotipo del Colegio Julio Benavides Sanguinetti" class="logo">
+        </div>
+        <nav>
+            <a data-section="inicio">INICIO</a>
+            <a data-section="sobre-nosotros">SOBRE NOSOTROS</a>
+            <a data-section="biblioteca">BIBLIOTECAS</a>
+            <a data-section="noticias">NOTICIAS</a>
+            <a data-section="contactos">CONTACTOS</a>
+            <div class="dropdown">
+                <button class="dropdown-btn" data-section="area-usuario">ÁREA DE USUARIO</button>
+                <div class="dropdown-content">
+                    <button id="acceso-estudiantes" onclick="window.location.href='login_student.html'">Acceso a
+                        Estudiantes</button>
+                    <button id="acceso-profesores" onclick="window.location.href='login_teacher.html'">Acceso a
+                        Profesores</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div id="inicio" class="section active">
+            <div class="hero">
+                <div class="text">
+                    <h2>Bienvenidos al Colegio Julio Benavides Sanguinetti</h2>
+                    <p>Formando líderes del futuro con excelencia y valores.</p>
+                    <button class="btn">Explora nuestro colegio</button>
+                </div>
+                <div class="image">
+                    <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                        alt="Estudiantes estudiando">
+                </div>
+            </div>
+            <div class="collage">
+                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60"
+                    alt="Estudiantes estudiando">
+                <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60"
+                    alt="Clase en aula">
+                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60"
+                    alt="Estudiantes colaborando">
+                <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60"
+                    alt="Actividad escolar">
+            </div>
+        </div>
+
+        <div id="sobre-nosotros" class="section">
+            <h2>Sobre Nosotros</h2>
+            <p><strong>Historia:</strong> Fundado en 1990, nuestro colegio ha crecido hasta convertirse en un referente
+                educativo.</p>
+            <p><strong>Visión:</strong> Formar líderes del mañana.</p>
+            <p><strong>Misión:</strong> Proveer una educación de calidad accesible para todos.</p>
+        </div>
+
+        <div id="biblioteca" class="section">
+            <h2>Biblioteca</h2>
+            <p>Bienvenidos a la Biblioteca del Colegio Julio Benavides Sanguinetti.</p>
+            <p>- Acceso a una amplia colección de libros académicos y de lectura general.</p>
+            <p>- Horario: Lunes a Viernes, 8:00 - 16:00.</p>
+            <p>- Recursos digitales disponibles para estudiantes y profesores.</p>
+        </div>
+
+        <div id="noticias" class="section">
+            <h2>Noticias</h2>
+            <p>- Nuevos cursos de robótica disponibles.</p>
+            <p>- Celebración del día del estudiante el próximo mes.</p>
+        </div>
+
+        <div id="contactos" class="section">
+            <h2>Contactos</h2>
+            <p>Dirección: Calle Ejemplo 123, Ciudad</p>
+            <p>Teléfono: (123) 456-7890</p>
+            <p>Correo: <a
+                    href="/cdn-cgi/l/email-protection#4a272b2a302527302b0a272b2821232d2b2e2637642f2e3f64302f">[email&#160;protected]</a>
+            </p>
+        </div>
+
+        <div id="area-usuario" class="section">
+            <h2>Área de Usuario</h2>
+
+            <p>Accede a tus calificaciones y recursos educativos.</p>
+        </div>
+    </div>
+
+    <a href="/cdn-cgi/l/email-protection#7e131f1e041113041f3e131f1c15171117121809501b1a0b50041b" class="chat-btn">Chatea
+        con nosotros</a>
+
+    <!-- Firebase SDK (versión compat) -->
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzzPxozq5njEkOXIH-1JAVYLrjyY4KZsA",
+            authDomain: "juliobenavides-sanguinetti.firebaseapp.com",
+            projectId: "juliobenavides-sanguinetti",
+            storageBucket: "juliobenavides-sanguinetti.firebasestorage.app",
+            messagingSenderId: "868115613114",
+            appId: "1:868115613114:web:90a9a69886ac14cb3b4983",
+            measurementId: "G-8JR1MN1HGB"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
+    <script src="script.js"></script>
+</body>
+
+</html>

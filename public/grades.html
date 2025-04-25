@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Notas - Profesores</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: #1E3A8A;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar .user-info i {
+            font-size: 1.2em;
+        }
+
+        .navbar .logout-btn {
+            background: #36BFB1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .navbar .logout-btn:hover {
+            background: #60A5FA;
+        }
+
+        .container {
+            max-inline-size: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome {
+            background: linear-gradient(135deg, #36BFB1, #60A5FA);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-block-end: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .welcome i {
+            font-size: 1.5em;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-block-end: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-weight: bold;
+            color: #1E3A8A;
+        }
+
+        select,
+        button,
+        input[type="text"] {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #36BFB1;
+            border-radius: 6px;
+            background: #fff;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        select:focus,
+        button:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #60A5FA;
+            box-shadow: 0 0 5px rgba(96, 165, 250, 0.3);
+        }
+
+        button {
+            background: #36BFB1;
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            background: #60A5FA;
+        }
+
+        .search-bar {
+            margin-block-end: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        table {
+            inline-size: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: start;
+            border-block-end: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #1E3A8A;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .no-grade {
+            color: #999;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .edit-btn {
+            background: #36BFB1;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .edit-btn:hover {
+            background: #60A5FA;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset-block-start: 0;
+            inset-inline-start: 0;
+            inline-size: 100%;
+            block-size: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            inline-size: 350px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content h2 {
+            color: #1E3A8A;
+            margin-block-end: 15px;
+        }
+
+        .modal-content input {
+            inline-size: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #36BFB1;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .modal-content button {
+            margin: 10px 5px;
+            padding: 10px 20px;
+        }
+
+        .notifications {
+            margin: 20px 0;
+            padding: 15px;
+            background: #36BFB1;
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notifications.critical {
+            background: #EF4444;
+        }
+
+        .summary {
+            margin: 20px 0;
+            padding: 15px;
+            background: #60A5FA;
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .summary div {
+            flex: 1;
+            min-inline-size: 150px;
+        }
+
+        @media (max-inline-size: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .filters,
+            .search-bar {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th,
+            td {
+                padding: 10px;
+            }
+
+            .modal-content {
+                inline-size: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <h2><i class="fas fa-school"></i> Colegio Julio Benavides Sanguinetti</h2>
+        <div class="user-info">
+            <i class="fas fa-user"></i>
+            <span id="teacherName">Bienvenido, Prof.</span>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="welcome">
+            <i class="fas fa-chalkboard-teacher"></i>
+            <span>Gestión de Notas - Sistema Educativo</span>
+        </div>
+        <div class="filters">
+            <div class="filter-group">
+                <label for="gradeSelect">Grado</label>
+                <select id="gradeSelect" onchange="updateFilters()">
+                    <option value="">Seleccione Grado</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="sectionSelect">Sección</label>
+                <select id="sectionSelect" onchange="updateFilters()" disabled>
+                    <option value="">Seleccione Sección</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="bimestreSelect">Bimestre</label>
+                <select id="bimestreSelect" onchange="updateFilters()" disabled>
+                    <option value="">Seleccione Bimestre</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="courseSelect">Curso</label>
+                <select id="courseSelect" onchange="updateFilters()" disabled>
+                    <option value="">Seleccione Curso</option>
+                </select>
+            </div>
+            <button id="listBtn" onclick="listStudents()" disabled><i class="fas fa-list"></i> Mostrar</button>
+        </div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Buscar por DNI o Nombre" oninput="searchStudents()">
+            <button onclick="exportToCSV()"><i class="fas fa-download"></i> Exportar CSV</button>
+        </div>
+        <div id="notifications" class="notifications" style="display: none;"><i class="fas fa-bell"></i> <span></span>
+        </div>
+        <table id="gradesTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Nº</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Estado</th>
+                    <th>Nota</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="gradesBody"></tbody>
+        </table>
+        <div id="summary" class="summary" style="display: none;"></div>
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <h2><i class="fas fa-edit"></i> Editar Nota</h2>
+                <p id="modalStudent"></p>
+                <input type="number" id="modalGrade" min="0" max="20" step="0.1" placeholder="Nota (0-20)">
+                <button onclick="saveGrade()"><i class="fas fa-save"></i> Guardar</button>
+                <button onclick="closeModal()"><i class="fas fa-times"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (versión compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Fuentes de Google Fonts
+        const link = document.createElement('link');
+        link.href = 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+
+        // Configuración de Firebase (usar el mismo que login_teacher.html)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzzPxozq5njEkOXIH-1JAVYLrjyY4KZsA",
+            authDomain: "juliobenavides-sanguinetti.firebaseapp.com",
+            projectId: "juliobenavides-sanguinetti",
+            storageBucket: "juliobenavides-sanguinetti.firebasestorage.app",
+            messagingSenderId: "868115613114",
+            appId: "1:868115613114:web:90a9a69886ac14cb3b4983",
+            measurementId: "G-8JR1MN1HGB"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Variables globales
+        let currentStudent = null;
+        let currentCourseId = null;
+        let currentBimestre = null;
+        let allStudents = [];
+        let allCourses = [];
+        let allGrades = [];
+        let allDeadlines = [];
+        let currentTeacher = null;
+
+        // Verificar autenticación y obtener datos del profesor
+        async function initialize() {
+            console.log('Iniciando initialize()...');
+            const teacherDNI = localStorage.getItem('teacherDNI');
+            console.log('teacherDNI desde localStorage:', teacherDNI);
+
+            if (!teacherDNI) {
+                alert('Por favor, inicie sesión.');
+                window.location.href = 'login_teacher.html';
+                return;
+            }
+
+            try {
+                console.log('Consultando profesor con DNI:', teacherDNI);
+                const teacherDoc = await db.collection('teachers').doc(teacherDNI).get();
+                if (teacherDoc.exists) {
+                    currentTeacher = { dni: teacherDNI, ...teacherDoc.data() };
+                    console.log('Datos del profesor:', currentTeacher);
+                    document.getElementById('teacherName').textContent = `Bienvenido, Prof. ${currentTeacher.nombre} ${currentTeacher.apellidos}`;
+                    await initializeFilters();
+                } else {
+                    console.log('Profesor no encontrado en Firestore.');
+                    alert('Profesor no encontrado. Por favor, inicie sesión nuevamente.');
+                    logout();
+                }
+            } catch (error) {
+                console.error('Error al cargar datos del profesor:', error);
+                alert('Error al cargar datos del profesor. Por favor, intenta de nuevo.');
+                logout();
+            }
+        }
+
+        // Inicializar filtros
+        async function initializeFilters() {
+            try {
+                console.log('Iniciando initializeFilters()...');
+                console.log('Consultando cursos para idProfesor:', currentTeacher.dni);
+                const coursesSnapshot = await db.collection('courses')
+                    .where('idProfesor', '==', currentTeacher.dni)
+                    .get();
+                allCourses = coursesSnapshot.docs.map(doc => doc.data());
+                console.log('Cursos obtenidos:', allCourses);
+
+                // Cargar deadlines
+                console.log('Consultando deadlines...');
+                const deadlinesSnapshot = await db.collection('deadlines').get();
+                allDeadlines = deadlinesSnapshot.docs.map(doc => ({
+                    ...doc.data(),
+                    fechaCierre: doc.data().fechaCierre.toDate()
+                }));
+                console.log('Deadlines obtenidos:', allDeadlines);
+
+                updateFilters();
+            } catch (error) {
+                console.error('Error al inicializar filtros:', error);
+                alert('Error al cargar los datos. Por favor, intenta de nuevo.');
+            }
+        }
+
+        // Actualizar filtros dinámicamente
+        function updateFilters() {
+            console.log('Iniciando updateFilters()...');
+            const gradeSelect = document.getElementById('gradeSelect');
+            const sectionSelect = document.getElementById('sectionSelect');
+            const bimestreSelect = document.getElementById('bimestreSelect');
+            const courseSelect = document.getElementById('courseSelect');
+            const listBtn = document.getElementById('listBtn');
+
+            // Preservar selecciones actuales
+            const currentGrade = gradeSelect.value;
+            const currentSection = sectionSelect.value;
+            const currentBimestre = bimestreSelect.value;
+            const currentCourse = courseSelect.value;
+
+            // Filtrar grados únicos
+            const grades = [...new Set(allCourses.map(c => c.grado))].sort();
+            console.log('Grados disponibles:', grades);
+            gradeSelect.innerHTML = '<option value="">Seleccione Grado</option>' +
+                grades.map(g => `<option value="${g}" ${g === currentGrade ? 'selected' : ''}>${g}</option>`).join('');
+
+            // Filtrar secciones según el grado seleccionado
+            const sections = [...new Set(allCourses
+                .filter(c => !gradeSelect.value || c.grado === gradeSelect.value)
+                .map(c => c.seccion))].sort();
+            console.log('Secciones disponibles:', sections);
+            sectionSelect.innerHTML = '<option value="">Seleccione Sección</option>' +
+                sections.map(s => `<option value="${s}" ${s === currentSection ? 'selected' : ''}>${s}</option>`).join('');
+            sectionSelect.disabled = sections.length === 0;
+
+            // Filtrar bimestres según grado y sección
+            const bimestres = [...new Set(allCourses
+                .filter(c => (!gradeSelect.value || c.grado === gradeSelect.value) && (!currentSection || c.seccion === currentSection))
+                .map(c => c.bimestre))].sort();
+            console.log('Bimestres disponibles:', bimestres);
+            bimestreSelect.innerHTML = '<option value="">Seleccione Bimestre</option>' +
+                bimestres.map(b => `<option value="${b}" ${b === currentBimestre ? 'selected' : ''}>${b}</option>`).join('');
+            bimestreSelect.disabled = !gradeSelect.value || sections.length === 0 || bimestres.length === 0;
+
+            // Filtrar cursos según grado, sección y bimestre
+            const courses = [...new Set(allCourses
+                .filter(c => c.grado === gradeSelect.value && c.seccion === currentSection && c.bimestre === currentBimestre)
+                .map(c => c.nombre))].sort();
+            console.log('Cursos disponibles:', courses);
+            courseSelect.innerHTML = '<option value="">Seleccione Curso</option>' +
+                courses.map(c => `<option value="${c}" ${c === currentCourse ? 'selected' : ''}>${c}</option>`).join('');
+            courseSelect.disabled = !gradeSelect.value || !currentSection || !currentBimestre || courses.length === 0;
+
+            // Actualizar botón de listar
+            listBtn.disabled = !gradeSelect.value || !sectionSelect.value || !bimestreSelect.value || !courseSelect.value;
+            console.log('Estado del botón listar:', listBtn.disabled);
+        }
+
+        // Listar estudiantes
+        async function listStudents() {
+            console.log('Iniciando listStudents()...');
+            const grade = document.getElementById('gradeSelect').value;
+            const section = document.getElementById('sectionSelect').value;
+            const bimestre = document.getElementById('bimestreSelect').value;
+            const course = document.getElementById('courseSelect').value;
+
+            try {
+                // Encontrar curso
+                const selectedCourse = allCourses.find(
+                    c => c.grado === grade && c.seccion === section && c.bimestre === bimestre && c.nombre === course
+                );
+                if (!selectedCourse) {
+                    console.log('Curso no encontrado con los filtros:', { grade, section, bimestre, course });
+                    alert('Curso no encontrado');
+                    return;
+                }
+
+                currentCourseId = selectedCourse.id;
+                currentBimestre = bimestre;
+                console.log('Curso seleccionado:', selectedCourse);
+
+                // Obtener estudiantes
+                console.log('Obteniendo estudiantes para el curso:', selectedCourse.estudiantes);
+                const studentPromises = selectedCourse.estudiantes.map(async (dni) => {
+                    const studentDoc = await db.collection('students').doc(dni).get();
+                    return studentDoc.exists ? { dni, ...studentDoc.data() } : null;
+                });
+                allStudents = (await Promise.all(studentPromises)).filter(s => s !== null);
+                console.log('Estudiantes obtenidos:', allStudents);
+
+                // Obtener notas
+                console.log('Obteniendo notas para idCurso:', selectedCourse.id, 'y bimestre:', bimestre);
+                const gradesSnapshot = await db.collection('grades')
+                    .where('idCurso', '==', selectedCourse.id)
+                    .where('bimestre', '==', bimestre)
+                    .get();
+                allGrades = gradesSnapshot.docs.map(doc => doc.data());
+                console.log('Notas obtenidas:', allGrades);
+
+                // Generar tabla
+                renderTable(allStudents, allGrades);
+
+                document.getElementById('gradesTable').style.display = 'table';
+
+                // Notificaciones
+                const missingGrades = allStudents.length - allGrades.length;
+                const deadline = allDeadlines.find(d => d.bimestre === bimestre);
+                const notifications = document.getElementById('notifications');
+                let messages = [];
+                if (missingGrades > 0) {
+                    messages.push(`Faltan notas para ${missingGrades} estudiantes.`);
+                }
+                if (deadline) {
+                    const daysLeft = Math.ceil((deadline.fechaCierre - new Date()) / (1000 * 60 * 60 * 24));
+                    if (daysLeft > 0) {
+                        messages.push(`El plazo para ${bimestre} cierra en ${daysLeft} días.`);
+                    }
+                    notifications.classList.toggle('critical', daysLeft <= 3 && daysLeft > 0);
+                }
+                notifications.querySelector('span').textContent = messages.join(' ');
+                notifications.style.display = messages.length ? 'flex' : 'none';
+                console.log('Notificaciones:', messages);
+
+                // Resumen
+                const validGrades = allGrades.map(g => g.nota).filter(n => n !== null);
+                const promedio = validGrades.length ? (validGrades.reduce((a, b) => a + b, 0) / validGrades.length).toFixed(1) : 0;
+                const aprobados = validGrades.filter(n => n >= 11).length;
+                const enRiesgo = validGrades.filter(n => n >= 9 && n < 11).length;
+                const desaprobados = validGrades.filter(n => n < 9).length;
+                const summary = document.getElementById('summary');
+                summary.innerHTML = `
+                    <div>Promedio: ${promedio}</div>
+                    <div>Aprobados: ${aprobados}</div>
+                    <div>En riesgo: ${enRiesgo}</div>
+                    <div>Desaprobados: ${desaprobados}</div>
+                `;
+                summary.style.display = 'flex';
+                console.log('Resumen:', { promedio, aprobados, enRiesgo, desaprobados });
+            } catch (error) {
+                console.error('Error al listar estudiantes:', error);
+                alert('Error al cargar los estudiantes. Por favor, intenta de nuevo.');
+            }
+        }
+
+        // Renderizar tabla
+        function renderTable(students, grades) {
+            console.log('Renderizando tabla con estudiantes:', students, 'y notas:', grades);
+            const tbody = document.getElementById('gradesBody');
+            tbody.innerHTML = '';
+            students.forEach((student, index) => {
+                const grade = grades.find(g => g.idEstudiante === student.dni);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${student.nombre}</td>
+                    <td>${student.apellidos}</td>
+                    <td>${student.estado}</td>
+                    <td class="${grade ? '' : 'no-grade'}">${grade ? grade.nota : '----'}</td>
+                    <td><button class="edit-btn" onclick="openModal('${student.dni}', '${student.nombre} ${student.apellidos}', ${grade ? grade.nota : 'null'})"><i class="fas fa-edit"></i> Editar</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Buscar estudiantes
+        function searchStudents() {
+            console.log('Buscando estudiantes...');
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const filteredStudents = allStudents.filter(s =>
+                s.dni.includes(searchInput) || s.nombre.toLowerCase().includes(searchInput) || s.apellidos.toLowerCase().includes(searchInput)
+            );
+            renderTable(filteredStudents, allGrades);
+        }
+
+        // Exportar a CSV
+        function exportToCSV() {
+            console.log('Exportando a CSV...');
+            const grade = document.getElementById('gradeSelect').value;
+            const section = document.getElementById('sectionSelect').value;
+            const bimestre = document.getElementById('bimestreSelect').value;
+            const course = document.getElementById('courseSelect').value;
+            let csvContent = 'Nº,DNI,Nombre,Apellidos,Estado,Nota\n';
+            allStudents.forEach((student, index) => {
+                const grade = allGrades.find(g => g.idEstudiante === student.dni);
+                csvContent += `${index + 1},${student.dni},${student.nombre},${student.apellidos},${student.estado},${grade ? grade.nota : '----'}\n`;
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Notas_${grade}_${section}_${course}_${bimestre}.csv`;
+            link.click();
+        }
+
+        // Abrir modal
+        function openModal(dni, nombre, nota) {
+            console.log('Abriendo modal para estudiante:', dni);
+            currentStudent = { dni, nombre };
+            document.getElementById('modalStudent').textContent = `Estudiante: ${nombre}`;
+            document.getElementById('modalGrade').value = nota !== null ? nota : '';
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        // Cerrar modal
+        function closeModal() {
+            console.log('Cerrando modal...');
+            document.getElementById('editModal').style.display = 'none';
+            document.getElementById('modalGrade').value = '';
+            currentStudent = null;
+        }
+
+        // Guardar nota
+        async function saveGrade() {
+            console.log('Guardando nota...');
+            const nota = parseFloat(document.getElementById('modalGrade').value);
+            if (isNaN(nota) || nota < 0 || nota > 20) {
+                alert('La nota debe estar entre 0 y 20.');
+                return;
+            }
+
+            if (!confirm(`Vas a actualizar la nota de ${currentStudent.nombre} a ${nota} para ${currentBimestre}. ¿Confirmar?`)) {
+                return;
+            }
+
+            try {
+                const existingGrade = allGrades.find(
+                    g => g.idEstudiante === currentStudent.dni && g.idCurso === currentCourseId && g.bimestre === currentBimestre
+                );
+
+                const gradeData = {
+                    id: `${currentStudent.dni}_${currentCourseId}`,
+                    idEstudiante: currentStudent.dni,
+                    idCurso: currentCourseId,
+                    nota: nota,
+                    bimestre: currentBimestre,
+                    idProfesor: currentTeacher.dni,
+                    fecha: firebase.firestore.Timestamp.fromDate(new Date())
+                };
+
+                if (existingGrade) {
+                    await db.collection('grades').doc(gradeData.id).update({
+                        nota: nota,
+                        fecha: firebase.firestore.Timestamp.fromDate(new Date())
+                    });
+                    allGrades = allGrades.map(g =>
+                        g.id === existingGrade.id ? { ...g, nota, fecha: new Date() } : g
+                    );
+                } else {
+                    await db.collection('grades').doc(gradeData.id).set(gradeData);
+                    allGrades.push({ ...gradeData, fecha: new Date() });
+                }
+
+                // Registrar log
+                await db.collection('gradeLogs').add({
+                    idProfesor: currentTeacher.dni,
+                    idEstudiante: currentStudent.dni,
+                    idCurso: currentCourseId,
+                    bimestre: currentBimestre,
+                    notaAnterior: existingGrade ? existingGrade.nota : null,
+                    notaNueva: nota,
+                    fecha: firebase.firestore.Timestamp.fromDate(new Date())
+                });
+
+                closeModal();
+                listStudents();
+            } catch (error) {
+                console.error('Error al guardar nota:', error);
+                alert('Error al guardar la nota. Por favor, intenta de nuevo.');
+            }
+        }
+
+        // Cerrar sesión
+        function logout() {
+            console.log('Cerrando sesión...');
+            if (confirm('¿Seguro que desea cerrar sesión?')) {
+                localStorage.removeItem('teacherDNI');
+                window.location.href = 'login_teacher.html';
+            }
+        }
+
+        // Inicializar página
+        initialize();
+    </script>
+</body>
+
+</html>

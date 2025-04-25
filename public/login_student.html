@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Estudiantil - Colegio Julio Benavides Sanguinetti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="student_styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="section active">
+            <h2>Portal Estudiantil</h2>
+            <div id="login-section" class="access-content">
+                <h3>Iniciar Sesión</h3>
+                <form id="login-form" class="login-form">
+                    <div class="form-group">
+                        <label for="dni">DNI (8 dígitos)</label>
+                        <input type="text" id="dni" maxlength="8" placeholder="72312029" autocomplete="username" required>
+                    </div>
+                    <div class="form-group password-group">
+                        <label for="password">Contraseña (DDMMAAAA)</label>
+                        <input type="password" id="password" maxlength="8" placeholder="14052010" autocomplete="current-password" required>
+                        <i class="fas fa-eye password-toggle" id="password-toggle"></i>
+                    </div>
+                    <button type="submit" class="btn">Iniciar Sesión</button>
+                    <button type="button" id="help-btn" class="btn secondary">Ayuda</button>
+                </form>
+                <p id="error-message" class="error-message"></p>
+                <p><a href="index.html">Volver al Inicio</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Ayuda -->
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
+            <h2>Ayuda</h2>
+            <p>Ingresa tu DNI de 8 dígitos. Tu contraseña es tu fecha de nacimiento en formato DDMMAAAA (por ejemplo, 14052010 para 14 de mayo de 2010).</p>
+            <button id="close-help" class="btn">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (solo Firestore) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzzPxozq5njEkOXIH-1JAVYLrjyY4KZsA",
+            authDomain: "juliobenavides-sanguinetti.firebaseapp.com",
+            projectId: "juliobenavides-sanguinetti",
+            storageBucket: "juliobenavides-sanguinetti.firebasestorage.app",
+            messagingSenderId: "868115613114",
+            appId: "1:868115613114:web:90a9a69886ac14cb3b4983",
+            measurementId: "G-8JR1MN1HGB"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Elementos del DOM
+        const loginForm = document.getElementById("login-form");
+        const dniInput = document.getElementById("dni");
+        const passwordInput = document.getElementById("password");
+        const errorMessage = document.getElementById("error-message");
+        const helpBtn = document.getElementById("help-btn");
+        const helpModal = document.getElementById("help-modal");
+        const closeHelpBtn = document.getElementById("close-help");
+        const passwordToggle = document.getElementById("password-toggle");
+
+        let loginAttempts = 0;
+        const maxAttempts = 5;
+
+        // Validar formato de DNI y contraseña
+        function validateInputs(dni, password) {
+            const dniRegex = /^\d{8}$/;
+            const passwordRegex = /^(0[1-9]|[12]\d|3[01])(0[1-9]|1[0-2])\d{4}$/;
+            return dniRegex.test(dni) && passwordRegex.test(password);
+        }
+
+        // Convertir fecha de nacimiento de DD/MM/YYYY a DDMMYYYY
+        function formatDateOfBirth(dateOfBirth) {
+            return dateOfBirth.replace(/\//g, '');
+        }
+
+        // Bloqueo por intentos fallidos
+        function checkAttempts() {
+            if (loginAttempts >= maxAttempts) {
+                errorMessage.textContent = "Demasiados intentos, intenta de nuevo en 10 minutos";
+                loginForm.querySelector("button[type=submit]").disabled = true;
+                setTimeout(() => {
+                    loginAttempts = 0;
+                    loginForm.querySelector("button[type=submit]").disabled = false;
+                    errorMessage.textContent = "";
+                }, 600000); // 10 minutos
+            }
+        }
+
+        // Alternar visibilidad de la contraseña
+        passwordToggle.addEventListener("click", () => {
+            const isPasswordVisible = passwordInput.type === "text";
+            passwordInput.type = isPasswordVisible ? "password" : "text";
+            passwordToggle.classList.toggle("fa-eye", !isPasswordVisible);
+            passwordToggle.classList.toggle("fa-eye-slash", isPasswordVisible);
+        });
+
+        // Validación con Firestore
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const dni = dniInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!dni || !password) {
+                errorMessage.textContent = "Por favor, ingresa tu DNI y contraseña";
+                return;
+            }
+
+            if (!validateInputs(dni, password)) {
+                errorMessage.textContent = "DNI o contraseña con formato incorrecto";
+                return;
+            }
+
+            try {
+                // Consultar el estudiante en Firestore
+                const studentDoc = await db.collection('students').doc(dni).get();
+                if (!studentDoc.exists) {
+                    errorMessage.textContent = "El DNI no está asociado a ningún alumno";
+                    loginAttempts++;
+                    checkAttempts();
+                    return;
+                }
+
+                const student = studentDoc.data();
+                if (!student.estado) {
+                    errorMessage.textContent = "El estado de la cuenta no está definido";
+                    loginAttempts++;
+                    checkAttempts();
+                    return;
+                }
+
+                // Verificar el estado del estudiante
+                const allowedStatuses = ["DEFINITIVA", "EN PROCESO"];
+                if (!allowedStatuses.includes(student.estado)) {
+                    errorMessage.textContent = "Cuenta desactivada (estado: " + student.estado + ")";
+                    loginAttempts++;
+                    checkAttempts();
+                    return;
+                }
+
+                // Comparar la contraseña con la fecha de nacimiento
+                const formattedDateOfBirth = formatDateOfBirth(student.fechaNacimiento);
+                if (formattedDateOfBirth !== password) {
+                    errorMessage.textContent = "DNI o contraseña incorrectos. Verifica tus credenciales.";
+                    loginAttempts++;
+                    checkAttempts();
+                    return;
+                }
+
+                // Registrar acceso en accessLogs
+                await db.collection('accessLogs').add({
+                    userId: dni,
+                    fecha: firebase.firestore.Timestamp.fromDate(new Date()),
+                    dispositivo: navigator.userAgent
+                });
+
+                // Guardar DNI en localStorage para usarlo en student.html
+                localStorage.setItem('studentDNI', dni);
+
+                // Redirigir a student.html
+                try {
+                    const response = await fetch('student.html');
+                    if (!response.ok) {
+                        throw new Error(`No se pudo encontrar student.html (Estado: ${response.status})`);
+                    }
+                    window.location.href = 'student.html';
+                } catch (error) {
+                    errorMessage.textContent = "Error: No se pudo encontrar la página student.html.";
+                }
+            } catch (error) {
+                console.error('Error al validar las credenciales:', error);
+                if (error.message.includes('net::ERR_INTERNET_DISCONNECTED')) {
+                    errorMessage.textContent = "Error de conexión. Verifica tu internet e intenta de nuevo.";
+                } else {
+                    errorMessage.textContent = "Ocurrió un error al validar las credenciales. Intenta de nuevo.";
+                }
+                loginAttempts++;
+                checkAttempts();
+            }
+        });
+
+        // Mostrar modal de ayuda
+        helpBtn.addEventListener("click", () => {
+            helpModal.classList.add("active");
+        });
+
+        // Cerrar modal de ayuda
+        closeHelpBtn.addEventListener("click", () => {
+            helpModal.classList.remove("active");
+        });
+    </script>
+</body>
+</html>

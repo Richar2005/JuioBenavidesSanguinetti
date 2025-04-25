@@ -1,0 +1,24 @@
+{
+  "name": "pagina-web-tesis-2025",
+  "version": "1.0.0",
+  "main": "createCollections.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Richar2005/JuioBenavidesSanguinetti.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Richar2005/JuioBenavidesSanguinetti/issues"
+  },
+  "homepage": "https://github.com/Richar2005/JuioBenavidesSanguinetti#readme",
+  "description": "",
+  "dependencies": {
+    "csv-parse": "^5.6.0",
+    "firebase-admin": "^13.3.0"
+  }
+}

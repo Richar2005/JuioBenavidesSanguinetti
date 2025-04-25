@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Estudiantil - Colegio Julio Benavides Sanguinetti</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-block-size: 100vh;
+            padding: 20px;
+            transition: background-color 0.3s;
+        }
+
+        /* Tema Azul con Celeste */
+        body.blue-theme {
+            --primary-color: #0056b3;
+            --secondary-color: #66b0ff;
+            --bg-color: #e6f0fa;
+            --text-color: #333;
+            --input-bg: #fff;
+            --table-border: #ddd;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Modo Oscuro */
+        body.dark-mode {
+            --primary-color: #1976d2;
+            --secondary-color: #90caf9;
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --input-bg: #3c3c3c;
+            --table-border: #555;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .container {
+            background: var(--input-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px var(--shadow-color);
+            max-inline-size: 600px;
+            inline-size: 100%;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in;
+            color: var(--text-color);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        h1 {
+            color: var(--text-color);
+            margin-block-end: 20px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-block-end: 20px;
+            text-align: start;
+        }
+
+        label {
+            font-size: 18px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            margin-block-end: 5px;
+        }
+
+        label .icon {
+            margin-inline-end: 10px;
+        }
+
+        input {
+            inline-size: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid var(--table-border);
+            border-radius: 5px;
+            outline: none;
+            background: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn.secondary {
+            background-color: #6c757d;
+        }
+
+        .btn.secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .error {
+            color: #ff6666;
+            margin-block-start: 10px;
+            font-size: 14px;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            margin: 10px 0;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        table {
+            inline-size: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid var(--table-border);
+            text-align: start;
+        }
+
+        th {
+            background-color: var(--bg-color);
+        }
+
+        td {
+            background-color: var(--input-bg);
+        }
+
+        .aprobado { color: green; }
+        .en-riesgo { color: orange; }
+        .desaprobado { color: red; }
+
+        nav {
+            margin: 20px 0;
+        }
+
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-block-end: 20px;
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--table-border);
+        }
+
+        .modal {
+            position: fixed;
+            inset-block-start: 0;
+            inset-inline-start: 0;
+            inline-size: 100%;
+            block-size: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--input-bg);
+            padding: 20px;
+            border-radius: 10px;
+            max-inline-size: 400px;
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        .modal-content p {
+            margin-block-end: 20px;
+            font-size: 16px;
+        }
+
+        .progress-circle {
+            position: relative;
+            inline-size: 100px;
+            block-size: 100px;
+            margin: 20px auto;
+        }
+
+        .progress-circle svg {
+            inline-size: 100%;
+            block-size: 100%;
+        }
+
+        .progress-circle .circle-bg {
+            fill: none;
+            stroke: var(--table-border);
+            stroke-width: 10;
+        }
+
+        .progress-circle .circle-fg {
+            fill: none;
+            stroke: var(--primary-color);
+            stroke-width: 10;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .progress-circle span {
+            position: absolute;
+            inset-block-start: 50%;
+            inset-inline-start: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: var(--text-color);
+        }
+
+        .notification {
+            background: var(--bg-color);
+            color: var(--text-color);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid var(--primary-color);
+        }
+
+        .tip {
+            font-style: italic;
+            color: var(--text-color);
+            margin: 10px 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-inline-size: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            input, .btn {
+                font-size: 14px;
+            }
+
+            label {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body class="blue-theme">
+    <!-- Formulario de Inicio de Sesión -->
+    <div id="login-section" class="container">
+        <h1>Portal Estudiantil</h1>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="dni"><span class="icon">👤</span> DNI (8 dígitos)</label>
+                <input type="text" id="dni" maxlength="8" placeholder="12345678" required>
+            </div>
+            <div class="form-group">
+                <label for="password"><span class="icon">🔒</span> Contraseña (DDMMAAAA)</label>
+                <input type="password" id="password" maxlength="8" placeholder="15052010" required>
+            </div>
+            <button type="submit" class="btn">Iniciar Sesión</button>
+            <a href="#" id="forgot-password">¿Olvidaste tu contraseña?</a>
+            <button type="button" id="help-btn" class="btn secondary">Ayuda</button>
+        </form>
+        <p id="error-message" class="error"></p>
+    </div>
+
+    <!-- Panel de Usuario -->
+    <div id="dashboard-section" class="container hidden">
+        <h1 id="welcome-message"></h1>
+        <p id="last-login"></p>
+        <p id="notification" class="notification hidden"></p>
+        <p id="study-tip" class="tip"></p>
+        <select id="theme-select">
+            <option value="blue-theme">Azul con Celeste</option>
+            <option value="dark-mode">Modo Oscuro</option>
+        </select>
+        <button id="contact-btn" class="btn secondary">Contactar al Colegio</button>
+        <button id="logout-btn" class="btn secondary">Cerrar Sesión</button>
+        <nav>
+            <button id="grades-btn" class="btn">Calificaciones</button>
+        </nav>
+    </div>
+
+    <!-- Sección Calificaciones -->
+    <div id="grades-section" class="container hidden">
+        <h1>Calificaciones</h1>
+        <div id="grades-content">
+            <h2>Cursos Actuales</h2>
+            <div class="progress-circle" id="progress-circle">
+                <svg>
+                    <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
+                    <circle class="circle-fg" id="progress-fg" cx="50" cy="50" r="45"></circle>
+                </svg>
+                <span id="progress-text"></span>
+            </div>
+            <table id="grades-table">
+                <thead>
+                    <tr>
+                        <th>Curso</th>
+                        <th>Nota</th>
+                        <th>Estado</th>
+                        <th>Mensaje del Profesor</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <h2>Promedio General: <span id="general-average"></span></h2>
+            <h2>Histórico</h2>
+            <select id="history-select">
+                <option value="bimestre1">Bimestre 1</option>
+                <option value="bimestre2">Bimestre 2</option>
+            </select>
+            <table id="history-table">
+                <thead>
+                    <tr>
+                        <th>Curso</th>
+                        <th>Nota</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button id="download-pdf" class="btn">Descargar Boletín (PDF)</button>
+        </div>
+        <button id="back-to-dashboard" class="btn secondary">Volver</button>
+    </div>
+
+    <!-- Modal de Ayuda -->
+    <div id="help-modal" class="modal">
+        <div class="modal-content">
+            <h2>Ayuda</h2>
+            <p>Ingresa tu DNI de 8 dígitos. Tu contraseña es tu fecha de nacimiento en formato DDMMAAAA (por ejemplo, 15052010 para 15 de mayo de 2010).</p>
+            <button id="close-help" class="btn">Cerrar</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Simulación de base de datos
+        const students = [
+            {
+                dni: "12345678",
+                password: "15052010",
+                name: "Juan Pérez",
+                grades: [
+                    { course: "Matemáticas", average: 13, status: "Aprobado", message: "Buen esfuerzo, sigue practicando álgebra." },
+                    { course: "Lenguaje", average: 15, status: "Aprobado", message: "Excelente redacción, lee más textos narrativos." },
+                    { course: "Ciencias", average: 10, status: "En riesgo", message: "Repasa los temas de biología, pide ayuda si necesitas." }
+                ],
+                history: {
+                    bimestre1: [
+                        { course: "Matemáticas", average: 12 },
+                        { course: "Lenguaje", average: 13 },
+                        { course: "Ciencias", average: 11 }
+                    ],
+                    bimestre2: [
+                        { course: "Matemáticas", average: 14 },
+                        { course: "Lenguaje", average: 15 },
+                        { course: "Ciencias", average: 12 }
+                    ]
+                }
+            }
+        ];
+
+        // Consejos académicos
+        const studyTips = [
+            "Organiza tu tiempo con un horario de estudio diario.",
+            "Toma notas claras durante las clases para repasar después.",
+            "Pregunta a tus profesores si tienes dudas, ¡es la mejor forma de aprender!",
+            "Descansa bien antes de un examen para estar más concentrado.",
+            "Practica ejercicios similares a los de clase para reforzar lo aprendido."
+        ];
+
+        // Elementos del DOM
+        const loginSection = document.getElementById("login-section");
+        const dashboardSection = document.getElementById("dashboard-section");
+        const gradesSection = document.getElementById("grades-section");
+        const loginForm = document.getElementById("login-form");
+        const dniInput = document.getElementById("dni");
+        const passwordInput = document.getElementById("password");
+        const errorMessage = document.getElementById("error-message");
+        const welcomeMessage = document.getElementById("welcome-message");
+        const lastLogin = document.getElementById("last-login");
+        const notification = document.getElementById("notification");
+        const studyTip = document.getElementById("study-tip");
+        const themeSelect = document.getElementById("theme-select");
+        const contactBtn = document.getElementById("contact-btn");
+        const helpBtn = document.getElementById("help-btn");
+        const helpModal = document.getElementById("help-modal");
+        const closeHelpBtn = document.getElementById("close-help");
+        const forgotPasswordLink = document.getElementById("forgot-password");
+        const logoutBtn = document.getElementById("logout-btn");
+        const gradesBtn = document.getElementById("grades-btn");
+        const gradesTableBody = document.querySelector("#grades-table tbody");
+        const generalAverageSpan = document.getElementById("general-average");
+        const historySelect = document.getElementById("history-select");
+        const historyTableBody = document.querySelector("#history-table tbody");
+        const downloadPdfBtn = document.getElementById("download-pdf");
+        const backToDashboardBtn = document.getElementById("back-to-dashboard");
+        const progressFg = document.getElementById("progress-fg");
+        const progressText = document.getElementById("progress-text");
+
+        let currentStudent = null;
+        let loginAttempts = 0;
+        const maxAttempts = 5;
+        let lastLoginTime = null;
+
+        // Validar formato de DNI y contraseña
+        function validateInputs(dni, password) {
+            const dniRegex = /^\d{8}$/;
+            const passwordRegex = /^(0[1-9]|[12]\d|3[01])(0[1-9]|1[0-2])\d{4}$/;
+            return dniRegex.test(dni) && passwordRegex.test(password);
+        }
+
+        // Autenticación
+        loginForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const dni = dniInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!dni || !password) {
+                errorMessage.textContent = "Por favor, ingresa tu DNI y contraseña";
+                return;
+            }
+
+            if (!validateInputs(dni, password)) {
+                errorMessage.textContent = "DNI o contraseña con formato incorrecto";
+                return;
+            }
+
+            const student = students.find(s => s.dni === dni);
+
+            if (!student) {
+                errorMessage.textContent = "El DNI no está asociado a ningún alumno";
+                loginAttempts++;
+                checkAttempts();
+                return;
+            }
+
+            if (student.password !== password) {
+                errorMessage.textContent = "DNI o contraseña incorrectos. Intenta de nuevo";
+                loginAttempts++;
+                checkAttempts();
+                return;
+            }
+
+            // Autenticación exitosa
+            currentStudent = student;
+            loginAttempts = 0;
+            errorMessage.textContent = "";
+            loginSection.classList.add("hidden");
+            dashboardSection.classList.remove("hidden");
+            welcomeMessage.textContent = `Bienvenido, ${student.name}`;
+            lastLoginTime = lastLoginTime || new Date().toLocaleString("es-PE");
+            lastLogin.textContent = `Último acceso: ${lastLoginTime}`;
+            showNotification();
+            showStudyTip();
+        });
+
+        // Bloqueo por intentos fallidos
+        function checkAttempts() {
+            if (loginAttempts >= maxAttempts) {
+                errorMessage.textContent = "Demasiados intentos, intenta de nuevo en 10 minutos";
+                loginForm.querySelector("button[type=submit]").disabled = true;
+                setTimeout(() => {
+                    loginAttempts = 0;
+                    loginForm.querySelector("button[type=submit]").disabled = false;
+                    errorMessage.textContent = "";
+                }, 600000); // 10 minutos
+            }
+        }
+
+        // Mostrar modal de ayuda
+        helpBtn.addEventListener("click", () => {
+            helpModal.classList.add("active");
+        });
+
+        // Cerrar modal de ayuda
+        closeHelpBtn.addEventListener("click", () => {
+            helpModal.classList.remove("active");
+        });
+
+        // Recuperación de contraseña (simulada)
+        forgotPasswordLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            alert("Se ha enviado un enlace de recuperación al correo registrado.");
+        });
+
+        // Cambiar tema
+        themeSelect.addEventListener("change", () => {
+            document.body.className = themeSelect.value;
+        });
+
+        // Contactar al colegio (simulado)
+        contactBtn.addEventListener("click", () => {
+            alert("Envía tus dudas al correo: soporte@colegiojbs.edu.pe");
+        });
+
+        // Cerrar sesión
+        logoutBtn.addEventListener("click", () => {
+            currentStudent = null;
+            dashboardSection.classList.add("hidden");
+            loginSection.classList.remove("hidden");
+            loginForm.reset();
+            lastLoginTime = new Date().toLocaleString("es-PE");
+        });
+
+        // Mostrar calificaciones
+        gradesBtn.addEventListener("click", () => {
+            dashboardSection.classList.add("hidden");
+            gradesSection.classList.remove("hidden");
+            displayGrades();
+        });
+
+        // Volver al dashboard
+        backToDashboardBtn.addEventListener("click", () => {
+            gradesSection.classList.add("hidden");
+            dashboardSection.classList.remove("hidden");
+        });
+
+        // Mostrar tabla de calificaciones
+        function displayGrades() {
+            gradesTableBody.innerHTML = "";
+            let totalAverage = 0;
+            currentStudent.grades.forEach(grade => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${grade.course}</td>
+                    <td>${grade.average}</td>
+                    <td class="${grade.status.toLowerCase().replace(" ", "-")}">${grade.status}</td>
+                    <td>${grade.message}</td>
+                `;
+                gradesTableBody.appendChild(row);
+                totalAverage += grade.average;
+            });
+            const generalAverage = (totalAverage / currentStudent.grades.length).toFixed(1);
+            generalAverageSpan.textContent = generalAverage;
+            updateProgressCircle(generalAverage);
+            displayHistory(historySelect.value);
+        }
+
+        // Mostrar histórico
+        historySelect.addEventListener("change", () => {
+            displayHistory(historySelect.value);
+        });
+
+        function displayHistory(period) {
+            historyTableBody.innerHTML = "";
+            currentStudent.history[period].forEach(grade => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${grade.course}</td>
+                    <td>${grade.average}</td>
+                `;
+                historyTableBody.appendChild(row);
+            });
+        }
+
+        // Actualizar círculo de progreso
+        function updateProgressCircle(average) {
+            const percentage = (average / 20) * 100;
+            const circumference = 2 * Math.PI * 45;
+            const offset = circumference - (percentage / 100) * circumference;
+            progressFg.style.strokeDasharray = `${circumference} ${circumference}`;
+            progressFg.style.strokeDashoffset = offset;
+            progressText.textContent = `${average}/20`;
+        }
+
+        // Mostrar notificación
+        function showNotification() {
+            const generalAverage = currentStudent.grades.reduce((sum, g) => sum + g.average, 0) / currentStudent.grades.length;
+            if (generalAverage >= 14) {
+                notification.textContent = "¡Felicidades, tu promedio es sobresaliente!";
+                notification.classList.remove("hidden");
+            } else {
+                notification.classList.add("hidden");
+            }
+        }
+
+        // Mostrar consejo académico
+        function showStudyTip() {
+            const randomTip = studyTips[Math.floor(Math.random() * studyTips.length)];
+            studyTip.textContent = `Consejo: ${randomTip}`;
+        }
+
+        // Descargar PDF
+        downloadPdfBtn.addEventListener("click", () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text(`Boletín de Notas - ${currentStudent.name}`, 20, 20);
+            let y = 30;
+            currentStudent.grades.forEach(grade => {
+                doc.text(`${grade.course}: ${grade.average} (${grade.status}) - ${grade.message}`, 20, y);
+                y += 10;
+            });
+            doc.text(`Promedio General: ${(currentStudent.grades.reduce((sum, g) => sum + g.average, 0) / currentStudent.grades.length).toFixed(1)}`, 20, y);
+            doc.save("boletin.pdf");
+        });
+
+        // Cierre automático tras 30 minutos de inactividad
+        let inactivityTimeout;
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimeout);
+            inactivityTimeout = setTimeout(() => {
+                if (currentStudent) {
+                    alert("Sesión cerrada por inactividad.");
+                    logoutBtn.click();
+                }
+            }, 30 * 60 * 1000); // 30 minutos
+        }
+
+        document.addEventListener("mousemove", resetInactivityTimer);
+        document.addEventListener("keydown", resetInactivityTimer);
+        resetInactivityTimer();
+    </script>
+</body>
+</html>

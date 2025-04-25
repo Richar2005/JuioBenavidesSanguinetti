@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Profesores - Colegio Julio Benavides Sanguinetti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="section active">
+            <h2>Área de Profesores</h2>
+            <div id="acceso-profesores-content" class="access-content">
+                <h3>Portal de Profesores</h3>
+                <div id="profesor-login" class="login-form">
+                    <input type="text" id="profesor-username" placeholder="DNI" required>
+                    <input type="text" id="profesor-password" placeholder="Fecha de Nacimiento (dd/mm/yyyy)" required>
+                    <div id="login-error" class="error-message"></div>
+                    <button id="profesor-login-btn" class="btn">Iniciar Sesión</button>
+                </div>
+                <p><a href="index.html">Volver al Inicio</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (solo Firestore) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzzPxozq5njEkOXIH-1JAVYLrjyY4KZsA",
+            authDomain: "juliobenavides-sanguinetti.firebaseapp.com",
+            projectId: "juliobenavides-sanguinetti",
+            storageBucket: "juliobenavides-sanguinetti.firebasestorage.app",
+            messagingSenderId: "868115613114",
+            appId: "1:868115613114:web:90a9a69886ac14cb3b4983",
+            measurementId: "G-8JR1MN1HGB"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Función para validar formato de fecha (dd/mm/yyyy)
+        function isValidDateFormat(dateStr) {
+            const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+            return dateRegex.test(dateStr);
+        }
+
+        // Función para limpiar los campos de entrada
+        function clearLoginFields() {
+            const usernameInput = document.getElementById('profesor-username');
+            const passwordInput = document.getElementById('profesor-password');
+            if (usernameInput && passwordInput) {
+                usernameInput.value = '';
+                passwordInput.value = '';
+            }
+        }
+
+        // Manejar login
+        const loginBtn = document.getElementById('profesor-login-btn');
+        if (loginBtn) {
+            // Limpiar campos al cargar la página
+            clearLoginFields();
+
+            // Evento para el botón
+            loginBtn.addEventListener('click', loginHandler);
+
+            // Evento para la tecla Enter en los inputs
+            const usernameInput = document.getElementById('profesor-username');
+            const passwordInput = document.getElementById('profesor-password');
+            if (usernameInput && passwordInput) {
+                usernameInput.addEventListener('keypress', function (event) {
+                    if (event.key === 'Enter') {
+                        loginHandler();
+                    }
+                });
+                passwordInput.addEventListener('keypress', function (event) {
+                    if (event.key === 'Enter') {
+                        loginHandler();
+                    }
+                });
+            }
+
+            // Función manejadora del login
+            async function loginHandler() {
+                const dni = document.getElementById('profesor-username').value.trim();
+                const fechaNacimiento = document.getElementById('profesor-password').value.trim();
+                const errorMessage = document.getElementById('login-error');
+
+                errorMessage.textContent = '';
+
+                // Validaciones básicas
+                if (!dni || !fechaNacimiento) {
+                    errorMessage.textContent = 'Por favor, ingrese DNI y fecha de nacimiento.';
+                    return;
+                }
+
+                if (!/^\d{8}$/.test(dni)) {
+                    errorMessage.textContent = 'El DNI debe tener 8 dígitos numéricos.';
+                    return;
+                }
+
+                if (!isValidDateFormat(fechaNacimiento)) {
+                    errorMessage.textContent = 'La fecha de nacimiento debe tener el formato dd/mm/yyyy.';
+                    return;
+                }
+
+                try {
+                    // Consultar el profesor en Firestore
+                    const teacherDoc = await db.collection('teachers').doc(dni).get();
+                    if (!teacherDoc.exists) {
+                        errorMessage.textContent = 'Profesor no encontrado. Verifique su DNI.';
+                        return;
+                    }
+
+                    const teacherData = teacherDoc.data();
+                    if (teacherData.fechaNacimiento !== fechaNacimiento) {
+                        errorMessage.textContent = 'Fecha de nacimiento incorrecta.';
+                        return;
+                    }
+
+                    // Guardar el DNI en localStorage para usarlo en grades.html
+                    localStorage.setItem('teacherDNI', dni);
+
+                    // Limpiar campos y redirigir
+                    clearLoginFields();
+                    window.location.href = 'grades.html';
+                } catch (error) {
+                    console.error('Error al autenticar:', error);
+                    errorMessage.textContent = 'Error al iniciar sesión. Por favor, intenta de nuevo.';
+                }
+            }
+        }
+
+        // Verificar si ya hay un usuario "autenticado"
+        if (localStorage.getItem('teacherDNI')) {
+            window.location.href = 'grades.html';
+        }
+    </script>
+</body>
+
+</html>

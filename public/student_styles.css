@@ -1,0 +1,297 @@
+/* Estilos para student.html, unificados con styles.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #FFFFFF;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+body.dark-theme {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+.container {
+    max-inline-size: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #FFFFFF;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+body.dark-theme .container {
+    background: #3c3c3c;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.hidden {
+    display: none;
+}
+
+h1, h2 {
+    color: #014040;
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    margin-block-end: 15px;
+}
+
+body.dark-theme h1, body.dark-theme h2 {
+    color: #e0e0e0;
+}
+
+.btn {
+    background-color: #36BFB1;
+    color: #FFFFFF;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #F27405;
+}
+
+.btn.secondary {
+    background-color: #6c757d;
+}
+
+.btn.secondary:hover {
+    background-color: #5a6268;
+}
+
+select {
+    inline-size: 100%;
+    padding: 10px;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    border: 1px solid #02735E;
+    border-radius: 5px;
+    background: #FFFFFF;
+    color: #731702;
+    margin-block-end: 20px;
+}
+
+body.dark-theme select {
+    background: #3c3c3c;
+    color: #e0e0e0;
+    border-color: #555;
+}
+
+table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+th, td {
+    padding: 12px;
+    border: 1px solid #02735E;
+    text-align: start;
+}
+
+th {
+    background-color: #36BFB1;
+    color: #FFFFFF;
+}
+
+body.dark-theme th {
+    background-color: #146551;
+}
+
+td {
+    background-color: #FFFFFF;
+    color: #731702;
+}
+
+body.dark-theme td {
+    background-color: #3c3c3c;
+    color: #e0e0e0;
+}
+
+.aprobado {
+    color: green;
+}
+
+.en-riesgo {
+    color: orange;
+}
+
+.desaprobado {
+    color: red;
+}
+
+.notification {
+    background: #36BFB1;
+    color: #FFFFFF;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    border: 1px solid #02735E;
+}
+
+body.dark-theme .notification {
+    background: #146551;
+    border-color: #555;
+}
+
+.tip {
+    font-style: italic;
+    color: #731702;
+    margin: 10px 0;
+}
+
+body.dark-theme .tip {
+    color: #e0e0e0;
+}
+
+.progress-circle {
+    position: relative;
+    inline-size: 100px;
+    block-size: 100px;
+    margin: 20px auto;
+}
+
+.progress-circle svg {
+    inline-size: 100%;
+    block-size: 100%;
+}
+
+.progress-circle .circle-bg {
+    fill: none;
+    stroke: #02735E;
+    stroke-width: 10;
+}
+
+body.dark-theme .progress-circle .circle-bg {
+    stroke: #555;
+}
+
+.progress-circle .circle-fg {
+    fill: none;
+    stroke: #36BFB1;
+    stroke-width: 10;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
+
+body.dark-theme .progress-circle .circle-fg {
+    stroke: #F27405;
+}
+
+.progress-circle span {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    color: #731702;
+}
+
+body.dark-theme .progress-circle span {
+    color: #e0e0e0;
+}
+
+.modal {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: #FFFFFF;
+    padding: 20px;
+    border-radius: 5px;
+    max-inline-size: 400px;
+    text-align: center;
+    color: #731702;
+}
+
+body.dark-theme .modal-content {
+    background: #3c3c3c;
+    color: #e0e0e0;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    h1, h2 {
+        font-size: clamp(1rem, 5vw, 1.5rem);
+    }
+
+    .btn, select {
+        font-size: clamp(0.8rem, 3vw, 0.9rem);
+    }
+
+    table th, table td {
+        padding: 8px;
+        font-size: clamp(0.8rem, 3vw, 0.9rem);
+    }
+
+    .progress-circle {
+        inline-size: 80px;
+        block-size: 80px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+
+    .progress-circle {
+        inline-size: 60px;
+        block-size: 60px;
+    }
+
+    .progress-circle span {
+        font-size: 14px;
+    }
+}
+
+
+/* Estilo para el contenedor del campo de contraseña */
+.form-group.password-group {
+    position: relative;
+}
+
+/* Estilo para el ícono de mostrar/ocultar contraseña */
+.password-toggle {
+    position: absolute;
+    inset-inline-end: 10px;
+    inset-block-start: 65%; /* Ajusta según el diseño del campo */
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    font-size: 18px;
+}
+
+.password-toggle:hover {
+    color: #333;
+}
+
+/* Ajustar el padding del input para que no se superponga con el ícono */
+.form-group.password-group input[type="password"],
+.form-group.password-group input[type="text"] {
+    padding-inline-end: 40px; /* Espacio para el ícono */
+}
